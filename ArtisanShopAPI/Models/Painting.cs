@@ -13,7 +13,7 @@ namespace ArtisanShopAPI.Models
         [Column("title")]
         public string? Title { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(200)]
         [Column("details")]
         public string? Details { get; set; }
 

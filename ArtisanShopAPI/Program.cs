@@ -1,4 +1,5 @@
 using ArtisanShopAPI.Data;
+using ArtisanShopAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add Database Context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add Azure Blob Storage
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 
 // Add services to the container.
 builder.Services.AddControllers();

@@ -11,6 +11,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add Azure Blob Storage
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 
+// Add Email Service
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

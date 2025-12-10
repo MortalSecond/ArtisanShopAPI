@@ -14,6 +14,11 @@ builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 // Add Email Service
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// Add Formatting Service
+// P.S. Honest to god i don't know if should actually make the formatting service
+// an interface instead of just a concrete class with no interface.
+builder.Services.AddScoped<IFormattingService, FormattingService>();
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

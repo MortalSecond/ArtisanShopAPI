@@ -26,5 +26,11 @@ namespace ArtisanShopAPI.Models
 
         [Column("width")]
         public int? Width { get; set; }
+
+        [Column("price")]
+        public int? Price { get; set; }
+
+        [Column("available")]
+        public bool Available { get; set; }
     }
 }

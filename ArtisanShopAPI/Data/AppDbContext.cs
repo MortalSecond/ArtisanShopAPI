@@ -12,6 +12,7 @@ namespace ArtisanShopAPI.Data
         public DbSet<Painting> Paintings { get; set; } = null!;
         public DbSet<ContactInquiry> ContactInquiries { get; set; }
         public DbSet<CommissionRequest> CommissionRequests { get; set; }
+        public DbSet<AdminUser> AdminUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

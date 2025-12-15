@@ -1,6 +1,7 @@
 ﻿using ArtisanShopAPI.Data;
 using ArtisanShopAPI.Models;
 using ArtisanShopAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,14 @@ namespace ArtisanShopAPI.Controllers
                 email = user.Email,
                 expiresIn = 28800 // 8hrs
             });
+        }
+
+        // GET: api/Auth/validate
+        [Authorize]
+        [HttpGet("validate")]
+        public IActionResult ValidateToken()
+        {
+            return Ok(new { valid = true });
         }
 
         // DTOs

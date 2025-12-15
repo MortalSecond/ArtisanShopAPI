@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ArtisanShopAPI.Data;
 using ArtisanShopAPI.Models;
 using ArtisanShopAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ArtisanShopAPI.Controllers
 {
@@ -25,6 +26,7 @@ namespace ArtisanShopAPI.Controllers
         }
 
         // GET: api/Contact
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContactInquiry>>> GetContactInquiries()
         {
@@ -32,55 +34,30 @@ namespace ArtisanShopAPI.Controllers
         }
 
         // GET: api/Contact/5
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<ContactInquiry>> GetContactInquiry(int id)
         {
-            var contactInquiry = await _context.ContactInquiries.FindAsync(id);
+            var inquiry = await _context.ContactInquiries.FindAsync(id);
 
-            if (contactInquiry == null)
-            {
+            if (inquiry == null)
                 return NotFound();
-            }
 
-            return contactInquiry;
-        }
-
-        // PUT: api/Contact/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutContactInquiry(int id, ContactInquiry contactInquiry)
-        {
-            if (id != contactInquiry.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(contactInquiry).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ContactInquiryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return inquiry;
         }
 
         // POST: api/Contact
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<ContactInquiry>> SubmitContact(ContactInquiry inquiry)
         {
+            // Validation
+            if (string.IsNullOrWhiteSpace(inquiry.Name) ||
+                string.IsNullOrWhiteSpace(inquiry.Email) ||
+                string.IsNullOrWhiteSpace(inquiry.Message))
+            {
+                return BadRequest(new { message = "Name, email, and message are required" });
+            }
+
             // Inside a Try for the sake of responsiveness to errors.
             try
             {
@@ -99,7 +76,7 @@ namespace ArtisanShopAPI.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error (you'd use a proper logger in production)
+                // Log the error
                 Console.WriteLine($"Error processing contact form: {ex.Message}");
 
                 return StatusCode(500, new
@@ -110,25 +87,36 @@ namespace ArtisanShopAPI.Controllers
             }
         }
 
-        // DELETE: api/Contact/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteContactInquiry(int id)
+        // PATCH: api/Contact/5/mark-read
+        [Authorize]
+        [HttpPatch("{id}/mark-read")]
+        public async Task<IActionResult> MarkAsRead(int id)
         {
-            var contactInquiry = await _context.ContactInquiries.FindAsync(id);
-            if (contactInquiry == null)
-            {
-                return NotFound();
-            }
+            var inquiry = await _context.ContactInquiries.FindAsync(id);
 
-            _context.ContactInquiries.Remove(contactInquiry);
+            if (inquiry == null)
+                return NotFound();
+
+            inquiry.IsRead = true;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ContactInquiryExists(int id)
+        // DELETE: api/Contact/5
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteContactInquiry(int id)
         {
-            return _context.ContactInquiries.Any(e => e.Id == id);
+            var inquiry = await _context.ContactInquiries.FindAsync(id);
+
+            if (inquiry == null)
+                return NotFound();
+
+            _context.ContactInquiries.Remove(inquiry);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

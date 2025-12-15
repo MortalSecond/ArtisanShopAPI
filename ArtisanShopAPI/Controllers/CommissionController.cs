@@ -2,6 +2,7 @@
 using ArtisanShopAPI.Models;
 using ArtisanShopAPI.Services;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,24 +28,8 @@ namespace ArtisanShopAPI.Controllers
             _blobStorageService = blobStorageService;
         }
 
-        // Form DTO
-        public class CommissionRequestDto
-        {
-            public string Name { get; set; }
-            public string Email { get; set; }
-            public string? Phone { get; set; }
-            public string? Message { get; set; }
-            public string Size { get; set; }
-            public string StoneCoverage { get; set; }
-            public string Frame { get; set; }
-            public string? Features { get; set; }
-            public string? Treatments { get; set; }
-            public string Shipping { get; set; }
-            public decimal EstimatedPrice { get; set; }
-            public IFormFile? PaintingImage { get; set; }
-        }
-
         // GET: api/Commission
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CommissionRequest>>> GetCommissionRequests()
         {
@@ -52,6 +37,7 @@ namespace ArtisanShopAPI.Controllers
         }
 
         // GET: api/Commission/5
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<CommissionRequest>> GetCommissionRequest(int id)
         {
@@ -65,42 +51,17 @@ namespace ArtisanShopAPI.Controllers
             return commissionRequest;
         }
 
-        // PUT: api/Commission/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCommissionRequest(int id, CommissionRequest commissionRequest)
-        {
-            if (id != commissionRequest.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(commissionRequest).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CommissionRequestExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/Commission
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<CommissionRequest>> SubmitCommissionRequest([FromForm] CommissionRequestDto dto)
         {
+            // Validation
+            if (string.IsNullOrWhiteSpace(dto.Name) ||
+                string.IsNullOrWhiteSpace(dto.Email))
+            {
+                return BadRequest(new { message = "Name and email are required" });
+            }
+
             try
             {
                 var request = new CommissionRequest
@@ -154,6 +115,7 @@ namespace ArtisanShopAPI.Controllers
         }
 
         // DELETE: api/Commission/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCommissionRequest(int id)
         {
@@ -163,15 +125,50 @@ namespace ArtisanShopAPI.Controllers
                 return NotFound();
             }
 
+            // Delete associated image if exists
+            if (!string.IsNullOrEmpty(commissionRequest.ImageUrl))
+            {
+                var fileName = commissionRequest.ImageUrl.Split('/').Last();
+                await _blobStorageService.DeleteImageAsync(fileName);
+            }
+
             _context.CommissionRequests.Remove(commissionRequest);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CommissionRequestExists(int id)
+        // PATCH: api/Commission/5/mark-read
+        [Authorize]
+        [HttpPatch("{id}/mark-read")]
+        public async Task<IActionResult> MarkAsRead(int id)
         {
-            return _context.CommissionRequests.Any(e => e.Id == id);
+            var request = await _context.CommissionRequests.FindAsync(id);
+
+            if (request == null)
+                return NotFound();
+
+            request.IsRead = true;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // Form DTO
+        public class CommissionRequestDto
+        {
+            public string Name { get; set; }
+            public string Email { get; set; }
+            public string? Phone { get; set; }
+            public string? Message { get; set; }
+            public string Size { get; set; }
+            public string StoneCoverage { get; set; }
+            public string Frame { get; set; }
+            public string? Features { get; set; }
+            public string? Treatments { get; set; }
+            public string Shipping { get; set; }
+            public decimal EstimatedPrice { get; set; }
+            public IFormFile? PaintingImage { get; set; }
         }
     }
 }

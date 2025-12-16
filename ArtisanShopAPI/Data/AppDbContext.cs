@@ -13,6 +13,7 @@ namespace ArtisanShopAPI.Data
         public DbSet<ContactInquiry> ContactInquiries { get; set; }
         public DbSet<CommissionRequest> CommissionRequests { get; set; }
         public DbSet<AdminUser> AdminUsers { get; set; }
+        public DbSet<PricingConfig> PricingConfigs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

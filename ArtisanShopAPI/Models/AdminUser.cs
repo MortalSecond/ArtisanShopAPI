@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ArtisanShopAPI.Models
 {
-    [Table("admin_user")]
+    [Table("admin_users")]
     public class AdminUser
     {
         [Key]

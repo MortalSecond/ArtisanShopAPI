@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ArtisanShopAPI.Models
 {
-    [Table("pricing_configs")]
+    [Table("pricing_config")]
     public class PricingConfig
     {
         [Key]

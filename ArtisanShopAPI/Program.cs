@@ -71,8 +71,11 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
-app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
 app.UseAuthentication();
 app.UseAuthorization();

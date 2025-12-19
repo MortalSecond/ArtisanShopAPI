@@ -5,7 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>9c7e6239-6f89-4af1-a5f0-a06b1e0fead5</UserSecretsId>
-  </PropertyGroup>
+		<PrePublishCommand>dotnet ef migrations bundle --self-contained -r linux-x64</PrePublishCommand>
+	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />

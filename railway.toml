@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "dotnet publish ArtisanShopAPI/ArtisanShopAPI.csproj -c Release -o out"
+buildCommand = "dotnet publish ./ArtisanShopAPI/ArtisanShopAPI.csproj -c Release -o out"
 
 [build.env]
 NIXPACKS_DOTNET_VERSION = "8.0"

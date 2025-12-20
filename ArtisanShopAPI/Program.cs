@@ -60,15 +60,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        // Get allowed origins from configuration
         var allowedOrigins = builder.Configuration
             .GetSection("AllowedOrigins")
             .Get<string[]>() ?? new[] { "http://localhost:4200" };
-        
+
         policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowAnyMethod();
     });
 });
 
@@ -79,14 +77,10 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-if (!app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
 
 app.UseCors("AllowAngular");
-app.MapHealthChecks("/health");
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHealthChecks("/health");
 app.MapControllers();
 app.Run();

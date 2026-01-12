@@ -65,8 +65,11 @@ namespace ArtisanShopAPI.Controllers
                 _context.ContactInquiries.Add(inquiry);
                 await _context.SaveChangesAsync();
 
-                // Send email
-                await _emailService.SendContactEmailAsync(inquiry);
+                // Send email (Asynchronously)
+                _ = Task.Run(async () =>
+                {
+                    await _emailService.SendContactEmailAsync(inquiry);
+                });
 
                 return Ok(new
                 {

@@ -94,8 +94,11 @@ namespace ArtisanShopAPI.Controllers
                 _context.CommissionRequests.Add(request);
                 await _context.SaveChangesAsync();
 
-                // Send email
-                await _emailService.SendCommissionRequestEmailAsync(request);
+                // Send email (Asynchronously)
+                _ = Task.Run(async () =>
+                {
+                    await _emailService.SendCommissionRequestEmailAsync(request);
+                });
 
                 return Ok(new
                 {

@@ -68,7 +68,15 @@ namespace ArtisanShopAPI.Controllers
                 // Send email (Asynchronously)
                 _ = Task.Run(async () =>
                 {
-                    await _emailService.SendContactEmailAsync(inquiry);
+                    try
+                    {
+                        await _emailService.SendContactEmailAsync(inquiry);
+                        Console.WriteLine($"[EMAIL] Successfully sent a contact mail. Inquiry number: #{inquiry.Id}");
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine($"[EMAIL] Failed to send contact mail #{inquiry.Id}: {ex.Message}");
+                    }
                 });
 
                 return Ok(new
@@ -80,7 +88,7 @@ namespace ArtisanShopAPI.Controllers
             catch (Exception ex)
             {
                 // Log the error
-                Console.WriteLine($"Error processing contact form: {ex.Message}");
+                Console.WriteLine($"[EMAIL] Error processing contact form: {ex.Message}");
 
                 return StatusCode(500, new
                 {

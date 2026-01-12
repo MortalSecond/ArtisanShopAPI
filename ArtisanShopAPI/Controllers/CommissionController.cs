@@ -97,7 +97,15 @@ namespace ArtisanShopAPI.Controllers
                 // Send email (Asynchronously)
                 _ = Task.Run(async () =>
                 {
-                    await _emailService.SendCommissionRequestEmailAsync(request);
+                    try
+                    {
+                        await _emailService.SendCommissionRequestEmailAsync(request);
+                        Console.WriteLine($"[EMAIL] Successfully sent a commission mail. Inquiry number: #{request.Id}");
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine($"[EMAIL] Failed to send commission mail #{request.Id}: {ex.Message}");
+                    }
                 });
 
                 return Ok(new
@@ -108,7 +116,7 @@ namespace ArtisanShopAPI.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error processing commission request: {ex.Message}");
+                Console.WriteLine($"[EMAIL] Error processing commission request: {ex.Message}");
                 return StatusCode(500, new
                 {
                     message = "There was an error processing your request. Please try again or contact us directly.",

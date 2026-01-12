@@ -111,11 +111,15 @@ namespace ArtisanShopAPI.Controllers
         public async Task<ActionResult<Painting>> UploadPainting([FromForm] PaintingUploadDto dto)
         {
             if (dto.ImageFile == null || dto.ImageFile.Length == 0)
+            {
+                Console.WriteLine("[PAINTING] No image file provided");
                 return BadRequest(new { message = "Image file is required" });
+            }
 
             try
             {
                 // Upload image to blob storage
+                Console.WriteLine($"[PAINTING] Uploading to blob storage: {dto.ImageFile.FileName}");
                 string imageUrl;
                 using (var stream = dto.ImageFile.OpenReadStream())
                 {
@@ -124,6 +128,8 @@ namespace ArtisanShopAPI.Controllers
                         dto.ImageFile.FileName
                     );
                 }
+
+                Console.WriteLine($"[PAINTING] Image uploaded: {imageUrl}");
 
                 var painting = new Painting
                 {
@@ -136,13 +142,17 @@ namespace ArtisanShopAPI.Controllers
                     Available = true
                 };
 
+                Console.WriteLine($"[PAINTING] Adding to database: {dto.Title}");
                 _context.Paintings.Add(painting);
                 await _context.SaveChangesAsync();
+                Console.WriteLine($"[PAINTING] Saved with ID: {painting.Id}");
 
                 return CreatedAtAction(nameof(GetPainting), new { id = painting.Id }, painting);
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[PAINTING ERROR] {ex.GetType().Name}: {ex.Message}");
+                Console.WriteLine($"[PAINTING ERROR] StackTrace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error uploading painting", error = ex.Message });
             }
         }

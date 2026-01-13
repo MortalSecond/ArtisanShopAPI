@@ -24,71 +24,42 @@ namespace ArtisanShopAPI.Services
         {
             try
             {
-                Console.WriteLine("[EMAIL] Starting email send process");
-                var message = new MimeMessage();
+                Console.WriteLine("[EMAIL] Sending via Resend API");
 
-                // From Address (Website's Email)
-                message.From.Add(new MailboxAddress(
-                    "Artisan Store Website",
-                    _configuration["Email:FromAddress"]
-                ));
+                using var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_configuration["Resend:ApiKey"]}");
 
-                // To Address (Receiver Email)
-                message.To.Add(new MailboxAddress(
-                    "Diego",
-                    _configuration["Email:ToAddress"]
-                ));
+                var payload = new
+                {
+                    from = "Artisan Store <onboarding@resend.dev>", // Use their domain initially
+                    to = new[] { _configuration["Email:ToAddress"] },
+                    reply_to = inquiry.Email,
+                    subject = $"{inquiry.InquiryType} from {inquiry.Name}",
+                    html = $@"
+                        <h2>New Contact Form Submission</h2>
+                        <p><strong>From:</strong> {inquiry.Name}</p>
+                        <p><strong>Email:</strong> {inquiry.Email}</p>
+                        <p><strong>Phone:</strong> {inquiry.Phone ?? "Not provided"}</p>
+                        <p><strong>Inquiry Type:</strong> {inquiry.InquiryType}</p>
+                        <p><strong>Submitted:</strong> {inquiry.SubmittedAt:yyyy-MM-dd HH:mm:ss} UTC</p>
+                        <hr>
+                        <h3>Message:</h3>
+                        <p>{inquiry.Message.Replace("\n", "<br>")}</p>"
+                    };
 
-                // Subject
-                message.Subject = $"{inquiry.InquiryType} from {inquiry.Name}";
+                var response = await httpClient.PostAsJsonAsync("https://api.resend.com/emails", payload);
 
-                // Body
-                var bodyBuilder = new BodyBuilder();
-                bodyBuilder.HtmlBody = $@"
-                    <h2>New Contact Form Submission</h2>
-                    <p><strong>From:</strong> {inquiry.Name}</p>
-                    <p><strong>Email:</strong> {inquiry.Email}</p>
-                    <p><strong>Phone:</strong> {inquiry.Phone ?? "Not provided"}</p>
-                    <p><strong>Inquiry Type:</strong> {inquiry.InquiryType}</p>
-                    <p><strong>Submitted:</strong> {inquiry.SubmittedAt:yyyy-MM-dd HH:mm:ss} UTC</p>
-                    <hr>
-                    <h3>Message:</h3>
-                    <p>{inquiry.Message.Replace("\n", "<br>")}</p>";
-                message.Body = bodyBuilder.ToMessageBody();
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Resend API error: {error}");
+                }
 
-                // Add Reply-To
-                message.ReplyTo.Add(new MailboxAddress(inquiry.Name, inquiry.Email));
-
-                // Send via SMTP
-                Console.WriteLine("[EMAIL] Message created, attempting SMTP connection");
-                using var client = new SmtpClient();
-                // 30sec timeout to prevent hanging
-                client.Timeout = 30000;
-
-                Console.WriteLine($"[EMAIL] Connecting to {_configuration["Email:SmtpHost"]}:{_configuration["Email:SmtpPort"]}");
-                await client.ConnectAsync(
-                    _configuration["Email:SmtpHost"],
-                    int.Parse(_configuration["Email:SmtpPort"]),
-                    SecureSocketOptions.StartTls
-                );
-
-                Console.WriteLine("[EMAIL] Connected, authenticating...");
-                await client.AuthenticateAsync(
-                    _configuration["Email:Username"],
-                    _configuration["Email:Password"]
-                );
-
-                Console.WriteLine("[EMAIL] Authenticated, sending message...");
-                await client.SendAsync(message);
-                Console.WriteLine("[EMAIL] Message sent, disconnecting...");
-                await client.DisconnectAsync(true);
-                Console.WriteLine("[EMAIL] Email sent successfully!");
+                Console.WriteLine("[EMAIL] Successfully sent via Resend");
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
-                Console.WriteLine($"[EMAIL ERROR] Type: {ex.GetType().Name}");
-                Console.WriteLine($"[EMAIL ERROR] Message: {ex.Message}");
-                Console.WriteLine($"[EMAIL ERROR] StackTrace: {ex.StackTrace}");
+                Console.WriteLine($"[EMAIL ERROR] {ex.Message}");
                 throw;
             }
         }

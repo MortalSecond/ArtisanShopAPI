@@ -31,19 +31,19 @@ namespace ArtisanShopAPI.Services
 
                 var payload = new
                 {
-                    from = "Artisan Store <onboarding@resend.dev>", // Use their domain initially
+                    from = "Taller Geoda",
                     to = new[] { _configuration["Email:ToAddress"] },
                     reply_to = inquiry.Email,
-                    subject = $"{inquiry.InquiryType} from {inquiry.Name}",
+                    subject = $"{inquiry.InquiryType} de {inquiry.Name}",
                     html = $@"
-                        <h2>New Contact Form Submission</h2>
-                        <p><strong>From:</strong> {inquiry.Name}</p>
+                        <h2>Nueva Pregunta</h2>
+                        <p><strong>De:</strong> {inquiry.Name}</p>
                         <p><strong>Email:</strong> {inquiry.Email}</p>
-                        <p><strong>Phone:</strong> {inquiry.Phone ?? "Not provided"}</p>
-                        <p><strong>Inquiry Type:</strong> {inquiry.InquiryType}</p>
-                        <p><strong>Submitted:</strong> {inquiry.SubmittedAt:yyyy-MM-dd HH:mm:ss} UTC</p>
+                        <p><strong>Telefono:</strong> {inquiry.Phone ?? "Not provided"}</p>
+                        <p><strong>Tipo de Pregunta:</strong> {inquiry.InquiryType}</p>
+                        <p><strong>Fecha de Envío:</strong> {inquiry.SubmittedAt:yyyy-MM-dd HH:mm:ss} UTC</p>
                         <hr>
-                        <h3>Message:</h3>
+                        <h3>Mensaje:</h3>
                         <p>{inquiry.Message.Replace("\n", "<br>")}</p>"
                     };
 
@@ -90,19 +90,19 @@ namespace ArtisanShopAPI.Services
             bodyBuilder.HtmlBody = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                     <h2 style='color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 10px;'>
-                        New Commission Request
+                        Nueva Comisión
                     </h2>
                 
                     <div style='background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-left: 4px solid #d4af37;'>
-                        <h3 style='margin-top: 0;'>Customer Information</h3>
-                        <p><strong>Name:</strong> {request.Name}</p>
+                        <h3 style='margin-top: 0;'>Informacion del Cliente</h3>
+                        <p><strong>Nombre:</strong> {request.Name}</p>
                         <p><strong>Email:</strong> <a href='mailto:{request.Email}'>{request.Email}</a></p>
-                        <p><strong>Phone:</strong> {request.Phone ?? "Not provided"}</p>
-                        <p><strong>Submitted:</strong> {request.SubmittedAt:yyyy-MM-dd HH:mm:ss} UTC</p>
+                        <p><strong>Telefono:</strong> {request.Phone ?? "Not provided"}</p>
+                        <p><strong>Fecha de Envío:</strong> {request.SubmittedAt:yyyy-MM-dd HH:mm:ss} UTC</p>
                     </div>
 
                     <div style='background-color: #fff9e6; padding: 20px; margin: 20px 0; border: 1px solid #d4af37;'>
-                        <h3 style='color: #d4af37; margin-top: 0;'>Commission Configuration</h3>
+                        <h3 style='color: #d4af37; margin-top: 0;'>Detalles de Comisión</h3>
                     
                         <table style='width: 100%; border-collapse: collapse;'>
                             <tr style='border-bottom: 1px solid #ddd;'>
@@ -110,31 +110,31 @@ namespace ArtisanShopAPI.Services
                                 <td style='padding: 10px;'>{_formattingService.FormatSize(request.Size)}</td>
                             </tr>
                             <tr style='border-bottom: 1px solid #ddd;'>
-                                <td style='padding: 10px; font-weight: bold;'>Stone Coverage:</td>
+                                <td style='padding: 10px; font-weight: bold;'>Piedras:</td>
                                 <td style='padding: 10px;'>{_formattingService.FormatStoneCoverage(request.StoneCoverage)}</td>
                             </tr>
                             <tr style='border-bottom: 1px solid #ddd;'>
-                                <td style='padding: 10px; font-weight: bold;'>Frame:</td>
+                                <td style='padding: 10px; font-weight: bold;'>Marco:</td>
                                 <td style='padding: 10px;'>{_formattingService.FormatFrame(request.Frame)}</td>
                             </tr>
                             <tr style='border-bottom: 1px solid #ddd;'>
-                                <td style='padding: 10px; font-weight: bold;'>Special Features:</td>
+                                <td style='padding: 10px; font-weight: bold;'>Caracteristicas Especiales:</td>
                                 <td style='padding: 10px;'>
                                     {(string.IsNullOrEmpty(request.Features) ? "None" : featuresList)}
                                 </td>
                             </tr>
                             <tr style='border-bottom: 1px solid #ddd;'>
-                                <td style='padding: 10px; font-weight: bold;'>Surface Treatments:</td>
+                                <td style='padding: 10px; font-weight: bold;'>Tratamientos:</td>
                                 <td style='padding: 10px;'>
                                     {(string.IsNullOrEmpty(request.Treatments) ? "None" : treatmentsList)}
                                 </td>
                             </tr>
                             <tr style='border-bottom: 1px solid #ddd;'>
-                                <td style='padding: 10px; font-weight: bold;'>Shipping:</td>
+                                <td style='padding: 10px; font-weight: bold;'>Envío:</td>
                                 <td style='padding: 10px;'>{_formattingService.FormatShipping(request.Shipping)}</td>
                             </tr>
                             <tr style='background-color: #d4af37; color: white;'>
-                                <td style='padding: 15px; font-weight: bold; font-size: 18px;'>Estimated Total:</td>
+                                <td style='padding: 15px; font-weight: bold; font-size: 18px;'>Total Estimado:</td>
                                 <td style='padding: 15px; font-size: 18px; font-weight: bold;'>${request.EstimatedPrice:N2}</td>
                             </tr>
                         </table>
@@ -142,16 +142,16 @@ namespace ArtisanShopAPI.Services
 
                     {(string.IsNullOrEmpty(request.Message) ? "" : $@"
                     <div style='background-color: #f9f9f9; padding: 20px; margin: 20px 0;'>
-                        <h3>Customer Message</h3>
+                        <h3>Mensaje Adjunto</h3>
                         <p style='white-space: pre-wrap;'>{request.Message}</p>
                     </div>
                     ")}
 
                     {(string.IsNullOrEmpty(request.ImageUrl) ? "" : $@"
                     <div style='background-color: #f9f9f9; padding: 20px; margin: 20px 0;'>
-                        <h3>Attached Painting Image</h3>
+                        <h3>Imagen Adjunta</h3>
                         <img src='{request.ImageUrl}' style='max-width: 100%; height: auto; border: 2px solid #d4af37;' />
-                        <p><a href='{request.ImageUrl}'>View Full Size</a></p>
+                        <p><a href='{request.ImageUrl}'>Ver Tamaño Completo</a></p>
                     </div>
                     ")}
 

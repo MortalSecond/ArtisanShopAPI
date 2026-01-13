@@ -31,7 +31,7 @@ namespace ArtisanShopAPI.Services
 
                 var payload = new
                 {
-                    from = "Taller Geoda <carmenartisan@gmail.com>",
+                    from = "Taller Geoda <onboarding@resend.dev>",
                     to = new[] { _configuration["Email:ToAddress"] },
                     reply_to = inquiry.Email,
                     subject = $"{inquiry.InquiryType} de {inquiry.Name}",
@@ -77,7 +77,7 @@ namespace ArtisanShopAPI.Services
                 string treatmentsList = _formattingService.BuildTreatmentList(request.Treatments);
                 var payload = new
                 {
-                    from = "Taller Geoda <carmenartisan@gmail.com>",
+                    from = "Taller Geoda <onboarding@resend.dev>",
                     to = new[] { _configuration["Email:ToAddress"] },
                     reply_to = request.Email,
                     subject = $"Nueva Comisión: {request.Name} - {request.EstimatedPrice}",
